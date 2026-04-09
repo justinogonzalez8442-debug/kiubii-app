@@ -8,7 +8,6 @@ const MODULE_TITLES = {
   sales:       'Ventas',
   expenses:    'Gastos',
   receivables: 'Cuentas por Cobrar',
-  quotes:      'Cotizaciones',
   customers:   'Clientes',
   compras:     'Compras',
   users:       'Usuarios',
@@ -20,7 +19,6 @@ const MODULE_RENDERERS = {
   sales:       renderSales,
   expenses:    renderExpenses,
   receivables: renderReceivables,
-  quotes:      renderQuotes,
   customers:   renderCustomers,
   compras:     renderCompras,
   users:       renderUsers,
@@ -37,8 +35,13 @@ async function navigate(module) {
     return;
   }
 
-  // Update nav
+  // Update sidebar nav
   document.querySelectorAll('.nav-item').forEach(item => {
+    item.classList.toggle('active', item.dataset.module === module);
+  });
+
+  // Update bottom nav
+  document.querySelectorAll('.bnav-item').forEach(item => {
     item.classList.toggle('active', item.dataset.module === module);
   });
 

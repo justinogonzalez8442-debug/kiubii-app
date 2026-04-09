@@ -158,8 +158,7 @@ async function renderDashboard() {
       <div style="display:flex;gap:10px;flex-wrap:wrap">
         <button class="btn btn-primary" onclick="navigate('sales').then(()=>openNewSaleModal())">+ Nueva Venta</button>
         ${isAdmin() ? `<button class="btn btn-secondary" onclick="navigate('expenses').then(()=>openNewExpenseModal())">+ Nuevo Gasto</button>` : ''}
-        <button class="btn btn-secondary" onclick="navigate('quotes').then(()=>openNewQuoteModal())">+ Cotización</button>
-        ${isAdmin() ? `<button class="btn btn-secondary" onclick="navigate('inventory').then(()=>openNewProductModal())">+ Producto</button>` : ''}
+${isAdmin() ? `<button class="btn btn-secondary" onclick="navigate('inventory').then(()=>openNewProductModal())">+ Producto</button>` : ''}
         <button class="btn btn-secondary" onclick="navigate('customers').then(()=>openNewCustomerModal())">+ Cliente</button>
         ${isAdmin() ? `<button class="btn btn-ghost btn-sm" onclick="runSeed()" title="Cargar datos de ejemplo">Seed datos</button>` : ''}
       </div>

@@ -30,6 +30,16 @@ function renderAppShell() {
 
   const usersNav = document.querySelector('.nav-item[data-module="users"]');
   if (usersNav) usersNav.style.display = isAdmin() ? '' : 'none';
+
+  // Hide admin-only bottom nav items for vendedores
+  const bnavExpenses = el('bnavExpenses');
+  if (bnavExpenses) bnavExpenses.style.display = isAdmin() ? '' : 'none';
+
+  const bnavCompras = el('bnavCompras');
+  if (bnavCompras) bnavCompras.style.display = isAdmin() ? '' : 'none';
+
+  const bnavUsers = el('bnavUsers');
+  if (bnavUsers) bnavUsers.style.display = isAdmin() ? '' : 'none';
 }
 
 async function handleLogin(e) {

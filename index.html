@@ -48,7 +48,7 @@
        ============================================================ -->
   <div id="appShell" class="hidden" style="display:contents">
 
-    <!-- Sidebar -->
+    <!-- Sidebar (desktop only) -->
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-header">
         <div class="logo">
@@ -72,9 +72,6 @@
         </a>
         <a class="nav-item" data-module="receivables" onclick="navigate('receivables')">
           <span class="nav-icon">&#9671;</span><span class="nav-label">Cuentas x Cobrar</span>
-        </a>
-        <a class="nav-item" data-module="quotes"      onclick="navigate('quotes')">
-          <span class="nav-icon">&#9633;</span><span class="nav-label">Cotizaciones</span>
         </a>
         <a class="nav-item" data-module="customers"   onclick="navigate('customers')">
           <span class="nav-icon">&#9679;</span><span class="nav-label">Clientes</span>
@@ -104,11 +101,12 @@
     <main class="main" id="main">
       <header class="topbar">
         <div class="topbar-left">
-          <button class="btn-icon" onclick="toggleSidebar()">&#9776;</button>
+          <button class="btn-icon sidebar-toggle-btn" onclick="toggleSidebar()">&#9776;</button>
           <h1 class="page-title" id="pageTitle">Dashboard</h1>
         </div>
         <div class="topbar-right">
           <span class="date-display" id="dateDisplay"></span>
+          <button class="btn btn-ghost btn-sm mobile-logout-btn" onclick="handleLogout()" title="Cerrar sesión">⏻ Salir</button>
         </div>
       </header>
 
@@ -118,11 +116,47 @@
       <div class="module-container hidden" id="mod-sales"></div>
       <div class="module-container hidden" id="mod-expenses"></div>
       <div class="module-container hidden" id="mod-receivables"></div>
-      <div class="module-container hidden" id="mod-quotes"></div>
       <div class="module-container hidden" id="mod-customers"></div>
       <div class="module-container hidden" id="mod-compras"></div>
       <div class="module-container hidden" id="mod-users"></div>
     </main>
+
+    <!-- Mobile Bottom Navigation -->
+    <nav class="bottom-nav" id="bottomNav">
+      <a class="bnav-item active" data-module="dashboard" onclick="navigate('dashboard')">
+        <span class="bnav-icon">🏠</span>
+        <span class="bnav-label">Inicio</span>
+      </a>
+      <a class="bnav-item" data-module="inventory" onclick="navigate('inventory')">
+        <span class="bnav-icon">📦</span>
+        <span class="bnav-label">Stock</span>
+      </a>
+      <a class="bnav-item" data-module="sales" onclick="navigate('sales')">
+        <span class="bnav-icon">💰</span>
+        <span class="bnav-label">Ventas</span>
+      </a>
+      <a class="bnav-item" data-module="expenses" onclick="navigate('expenses')" id="bnavExpenses">
+        <span class="bnav-icon">💸</span>
+        <span class="bnav-label">Gastos</span>
+      </a>
+      <a class="bnav-item" data-module="receivables" onclick="navigate('receivables')">
+        <span class="bnav-icon">📋</span>
+        <span class="bnav-label">CxC</span>
+      </a>
+      <a class="bnav-item" data-module="customers" onclick="navigate('customers')">
+        <span class="bnav-icon">👤</span>
+        <span class="bnav-label">Clientes</span>
+      </a>
+      <a class="bnav-item" data-module="compras" onclick="navigate('compras')" id="bnavCompras">
+        <span class="bnav-icon">🛒</span>
+        <span class="bnav-label">Compras</span>
+      </a>
+      <a class="bnav-item" data-module="users" onclick="navigate('users')" id="bnavUsers">
+        <span class="bnav-icon">⚙️</span>
+        <span class="bnav-label">Usuarios</span>
+      </a>
+    </nav>
+
   </div>
 
   <!-- Global Modal -->
@@ -152,7 +186,6 @@
   <script src="js/sales.js"></script>
   <script src="js/expenses.js"></script>
   <script src="js/receivables.js"></script>
-  <script src="js/quotes.js"></script>
   <script src="js/customers.js"></script>
   <script src="js/compras.js"></script>
   <script src="js/users.js"></script>

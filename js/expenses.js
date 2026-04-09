@@ -19,7 +19,6 @@ async function renderExpenses() {
 
 function _renderExpensesUI() {
   const expenses = _expenses;
-  const total = expenses.reduce((a, e) => a + Number(e.amount), 0);
   const now = new Date();
   const monthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
   const monthlyTotal = expenses.filter(e => e.date && e.date.startsWith(monthStr))
@@ -27,6 +26,7 @@ function _renderExpensesUI() {
 
   const byCat = {};
   expenses.forEach(e => { byCat[e.category] = (byCat[e.category] || 0) + Number(e.amount); });
+  const total = expenses.reduce((a, e) => a + Number(e.amount), 0);
   const topCat = Object.entries(byCat).sort((a, b) => b[1] - a[1]);
 
   el('mod-expenses').innerHTML = `
@@ -35,20 +35,11 @@ function _renderExpensesUI() {
       <button class="btn btn-primary" onclick="openNewExpenseModal()">+ Nuevo Gasto</button>
     </div>
 
-    <div class="stats-row mb-20" style="grid-template-columns:repeat(3,1fr)">
-      <div class="kpi-card">
-        <div class="kpi-label">Total registrado</div>
-        <div class="kpi-value" style="font-size:20px">${fmt(total)}</div>
-        <div class="kpi-sub">${expenses.length} registros</div>
-      </div>
+    <div class="stats-row mb-20" style="grid-template-columns:1fr">
       <div class="kpi-card warning">
         <div class="kpi-label">Gastos del mes</div>
         <div class="kpi-value" style="font-size:20px">${fmt(monthlyTotal)}</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-label">Mayor categoría</div>
-        <div class="kpi-value" style="font-size:16px">${topCat[0] ? topCat[0][0] : '—'}</div>
-        <div class="kpi-sub">${topCat[0] ? fmt(topCat[0][1]) : ''}</div>
+        <div class="kpi-sub">${expenses.filter(e => e.date && e.date.startsWith(monthStr)).length} registros este mes</div>
       </div>
     </div>
 
@@ -78,6 +69,14 @@ function _renderExpensesUI() {
           <option value="">Todas las categorías</option>
           ${EXPENSE_CATS.map(c => `<option value="${c}">${c}</option>`).join('')}
         </select>
+        <div>
+          <label style="font-size:11px">Desde</label>
+          <input type="date" id="expDateFrom" onchange="filterExpenses()" style="margin-top:4px">
+        </div>
+        <div>
+          <label style="font-size:11px">Hasta</label>
+          <input type="date" id="expDateTo" onchange="filterExpenses()" style="margin-top:4px">
+        </div>
       </div>
     </div>
 
@@ -90,6 +89,10 @@ function _renderExpensesUI() {
         <tbody id="expTableBody">${renderExpenseRows(expenses)}</tbody>
       </table>
     </div>
+    <div class="exp-total-footer">
+      <span style="font-size:13px;color:var(--text2)">Total filtrado:</span>
+      <span id="expFilteredTotal" class="fw-bold" style="font-size:16px;color:var(--warning)">${fmt(total)}</span>
+    </div>
   `;
 }
 
@@ -100,12 +103,12 @@ function renderExpenseRows(expenses) {
   </td></tr>`;
 
   return expenses.map(e => `<tr>
-    <td class="td-muted">${fmtDate(e.date)}</td>
-    <td><span class="badge badge-neutral">${escHtml(e.category || '—')}</span></td>
-    <td>${escHtml(e.description)}</td>
-    <td class="td-muted">${escHtml(e.supplier || '—')}</td>
-    <td class="td-right fw-bold text-warning">${fmt(e.amount)}</td>
-    <td class="td-muted" style="font-size:12px;text-transform:capitalize">${escHtml(e.payment_method)}</td>
+    <td data-label="Fecha" class="td-muted">${fmtDate(e.date)}</td>
+    <td data-label="Categoría"><span class="badge badge-neutral">${escHtml(e.category || '—')}</span></td>
+    <td data-label="Descripción">${escHtml(e.description)}</td>
+    <td data-label="Proveedor" class="td-muted">${escHtml(e.supplier || '—')}</td>
+    <td data-label="Monto" class="td-right fw-bold" style="color:var(--warning)">${fmt(e.amount)}</td>
+    <td data-label="Método" class="td-muted" style="font-size:12px;text-transform:capitalize">${escHtml(e.payment_method)}</td>
     <td class="td-center">
       <div style="display:flex;gap:4px;justify-content:center">
         <button class="btn btn-xs btn-ghost" onclick="openEditExpenseModal('${e.id}')">✏</button>
@@ -116,12 +119,23 @@ function renderExpenseRows(expenses) {
 }
 
 function filterExpenses() {
-  const search = (el('expSearch')?.value || '').toLowerCase();
-  const cat    = el('expCatFilter')?.value || '';
-  let expenses = [..._expenses];
-  if (search) expenses = expenses.filter(e => e.description.toLowerCase().includes(search) || (e.supplier || '').toLowerCase().includes(search));
-  if (cat)    expenses = expenses.filter(e => e.category === cat);
+  const search   = (el('expSearch')?.value || '').toLowerCase();
+  const cat      = el('expCatFilter')?.value || '';
+  const dateFrom = el('expDateFrom')?.value || '';
+  const dateTo   = el('expDateTo')?.value || '';
+  let expenses   = [..._expenses];
+
+  if (search)   expenses = expenses.filter(e => e.description.toLowerCase().includes(search) || (e.supplier || '').toLowerCase().includes(search));
+  if (cat)      expenses = expenses.filter(e => e.category === cat);
+  if (dateFrom) expenses = expenses.filter(e => e.date >= dateFrom);
+  if (dateTo)   expenses = expenses.filter(e => e.date <= dateTo);
+
   el('expTableBody').innerHTML = renderExpenseRows(expenses);
+
+  // Update dynamic total
+  const filteredTotal = expenses.reduce((a, e) => a + Number(e.amount), 0);
+  const totalEl = el('expFilteredTotal');
+  if (totalEl) totalEl.textContent = fmt(filteredTotal);
 }
 
 function openNewExpenseModal() {
@@ -165,10 +179,10 @@ function expenseForm(e = {}) {
     <div class="form-group">
       <label>Método de Pago</label>
       <select id="f_expPay">
-        <option value="efectivo" ${e.payment_method === 'efectivo' ? 'selected' : ''}>Efectivo</option>
-        <option value="transferencia" ${e.payment_method === 'transferencia' ? 'selected' : ''}>Transferencia</option>
-        <option value="tarjeta" ${e.payment_method === 'tarjeta' ? 'selected' : ''}>Tarjeta</option>
-        <option value="cheque" ${e.payment_method === 'cheque' ? 'selected' : ''}>Cheque</option>
+        <option value="efectivo"       ${e.payment_method === 'efectivo'       ? 'selected' : ''}>Efectivo</option>
+        <option value="transferencia"  ${e.payment_method === 'transferencia'  ? 'selected' : ''}>Transferencia</option>
+        <option value="tarjeta"        ${e.payment_method === 'tarjeta'        ? 'selected' : ''}>Tarjeta</option>
+        <option value="cheque"         ${e.payment_method === 'cheque'         ? 'selected' : ''}>Cheque</option>
       </select>
     </div>
     <div class="form-actions">

@@ -72,7 +72,7 @@ function _renderComprasUI() {
           <th class="td-center">Productos</th>
           <th class="td-right">Total</th>
           <th>Método</th>
-          <th class="td-center">Acciones</th>
+          <th></th>
         </tr></thead>
         <tbody id="purchTableBody">${_renderPurchaseRows(purchases)}</tbody>
       </table>
@@ -89,16 +89,14 @@ function _renderPurchaseRows(purchases) {
     </div>
   </td></tr>`;
 
-  return purchases.map(p => `<tr>
-    <td class="td-muted">${fmtDate(p.date)}</td>
-    <td><strong>${escHtml(p.supplier || '—')}</strong></td>
-    <td class="td-muted" style="font-size:12px">${escHtml(p.invoice_number || '—')}</td>
-    <td class="td-center">${(p.items || []).length}</td>
-    <td class="td-right fw-bold text-warning">${fmt(p.total)}</td>
-    <td class="td-muted" style="font-size:12px;text-transform:capitalize">${escHtml(p.payment_method)}</td>
-    <td class="td-center">
-      <button class="btn btn-xs btn-ghost" onclick="viewPurchaseDetail('${p.id}')">👁 Ver</button>
-    </td>
+  return purchases.map(p => `<tr class="row-clickable" onclick="viewPurchaseDetail('${p.id}')">
+    <td data-label="Fecha" class="td-muted">${fmtDate(p.date)}</td>
+    <td data-label="Proveedor"><strong>${escHtml(p.supplier || '—')}</strong></td>
+    <td data-label="Factura" class="td-muted" style="font-size:12px">${escHtml(p.invoice_number || '—')}</td>
+    <td data-label="Productos" class="td-center">${(p.items || []).length}</td>
+    <td data-label="Total" class="td-right fw-bold" style="color:var(--warning)">${fmt(p.total)}</td>
+    <td data-label="Método" class="td-muted" style="font-size:12px;text-transform:capitalize">${escHtml(p.payment_method)}</td>
+    <td class="td-center" style="color:var(--text3);font-size:12px">Ver →</td>
   </tr>`).join('');
 }
 
@@ -153,10 +151,10 @@ function viewPurchaseDetail(id) {
         </tr></thead>
         <tbody>
           ${items.map(i => `<tr>
-            <td>${escHtml(i.product_name)}</td>
-            <td class="td-center">${fmtNum(i.quantity)}</td>
-            <td class="td-right">${fmt(i.unit_price)}</td>
-            <td class="td-right fw-bold">${fmt(i.subtotal)}</td>
+            <td data-label="Producto">${escHtml(i.product_name)}</td>
+            <td data-label="Cantidad" class="td-center">${fmtNum(i.quantity)}</td>
+            <td data-label="Precio" class="td-right">${fmt(i.unit_price)}</td>
+            <td data-label="Subtotal" class="td-right fw-bold">${fmt(i.subtotal)}</td>
           </tr>`).join('')}
           <tr style="border-top:2px solid var(--border2)">
             <td colspan="3" class="td-right"><strong>Total</strong></td>
